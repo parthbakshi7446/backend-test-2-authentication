@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js"></script>
+</head>
+<body>
+    <div>
+        <% if(locals.user) {%>
+            <h3>Hi <%= locals.user.name %></h3>
+            <a href="/sign-out">Sign Out</a>
+            <h2>Update details</h2>
+            <form action="/update/<%= locals.user.id %>" method="POST">
+                <input name="name" value="<%= locals.user.name %>">
+                <input name="email" value="<%= locals.user.email %>">
+                <input name="old_pass" placeholder="enter old password">
+                <input name="new_pass" placeholder="enter new password">
+                <input type="submit">
+            </form>
+        <% }else{%>
+            <a href="/sign-in">Sign-In</a>
+            <a href="/sign-up">Sign-Up</a>
+            <a href="/google/auth">SignIn/SignUp with Google</a>
+        <%} %>
+
+    </div>
+    <script>
+        <% if(locals.flash.success && locals.flash.success.length>0) {%>
+            new Noty({
+                theme:'relax',
+                text:"<%= locals.flash.success %>",
+                type:'success',
+                layout:'topRight',
+                timeout:1500
+            }).show();
+        <%}%>
+        <% if(locals.flash.error && locals.flash.error.length>0) {%>
+            new Noty({
+                theme:'relax',
+                text:"<%= locals.flash.error %>",
+                type:'error',
+                layout:'topRight',
+                timeout:1500
+            }).show();
+        <%}%>
+    </script>
+</body>
+</html>

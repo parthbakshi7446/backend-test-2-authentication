@@ -2,84 +2,41 @@ let express = require('express');
 const  router = express.Router();
 module.exports = router;
 const homeController = require("../controllers/home_controller");
-
 const passport = require("passport");
 
-const User = require("../models/user");
+//homepage
+router.get("/",homeController.home);
 
-router.get("/",function(req,res){
-    return res.render("home");
-});
+//sign-up page
+router.get("/sign-up",homeController.signUp);
 
-router.get("/sign-up",function(req,res){
-    return res.render("sign-up");
-});
+//sign in page
+router.get("/sign-in",homeController.signIn);
 
-router.get("/sign-in",function(req,res){
-    return res.render("sign-in");
-});
-
+//request for signing in
 router.post("/create-session",
     passport.authenticate('local',{failureRedirect:"/sign-in"}),
-    function(req,res){
-        req.flash('success',"logged in successfully");
-        return res.redirect('/');
-    }
+    homeController.createSession
 );
 
+//google authorization request
 router.get("/google/auth",passport.authenticate('google',{scope:['profile','email']} ));
 
-router.get("/google/auth/callback",passport.authenticate('google',{failureRedirect:'/sign-in'}),function(req,res){
+//google callback after the request and checking if request is authenticated or not
+router.get(
+    "/google/auth/callback",
+    passport.authenticate('google',{failureRedirect:'/sign-in'}),
+    homeController.googleCallback
+);
 
-    req.flash('success',"logged In Successfully using google");
-    return res.redirect('/');
-});
+//create a user after signup 
+router.post("/create",homeController.create);
 
-router.post("/create",function(req,res){
-    if(req.body.conf_password!=req.body.password){
-        req.flash('error',"password doesnt match");
-        return res.redirect('back');
-    }   
-    User.create(req.body,function(err,user){
-        if(err){
-            console.log("error creating user in db");
-            console.log(err);
-            req.flash('error',err);
-            return res.redirect('back');
-        }
-        console.log(user);
-        req.flash('success','Your Profile is Successfully Created');
-        return res.redirect('/sign-in');
-    });
-});
+//update details of a user
+router.post("/update/:id",homeController.updateProfile);
 
-router.post("/update/:id",function(req,res){
-    User.findById(req.params.id,function(err,user){
-        if(err){console.log("error finding user white updating");res.redirect('back');}
-        if(user){
-            user.name = req.body.name;
-            user.email = req.body.email;
-            if( user.password == req.body.old_pass){
-                user.password = req.body.new_pass;
-            }
-            else if(req.body.old_password){
-                req.flash('error',"Old Password wrong");
-                return res.redirect('back');
-            }
-            user.save();
-            req.flash('success',"Profile Updated");
-            res.redirect('back');
-        }
-        else{
-            req.flash('error',"cannot get your data");
-            res.redirect('back');
-        }
-        
-    });
-});
-
-router.get("/sign-out",function(req,res){
-    req.logout();
-    req.flash('success',"logged out successfully");
-    return res.redirect('/');
-});
+//signs out a user
+router.get(
+    "/sign-out",
+    homeController.signOut
+);

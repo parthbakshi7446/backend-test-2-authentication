@@ -4,6 +4,10 @@ let app = express();
 let port = 8000;
 const db = require("./config/mongoose");
 
+//connecting static assets files 
+app.use(express.static('assets'));
+
+
 //used for session cookie
 const session = require('express-session');
 
@@ -18,6 +22,7 @@ const mongoStore = require('connect-mongo')(session);
 //for sending flash messages
 const flash = require("connect-flash");
 
+//set flash messgae to res.locals
 const customMWare = require("./config/custom_middleware");
 
 //mongo store is used to store the session cookie in db
@@ -61,7 +66,7 @@ app.use(customMWare.setFlash);
 app.use('/',require('./routes'));
 
 
-
+//server listen on specified port number
 app.listen(port,function(err){
     if(err){
         console.log(err);
